@@ -74,7 +74,7 @@ public class FailsafeExecutor<R> {
 
   /**
    * Returns a new {@code FailsafeExecutor} that composes the currently configured policies around the given {@code
-   * innerPolicy}. For example, consider:
+   * innerPolicy}, retaining the configured executor, scheduler, and listeners. For example, consider:
    * <p>
    * <pre>
    *   Failsafe.with(fallback).compose(retryPolicy).compose(circuitBreaker);
@@ -98,7 +98,13 @@ public class FailsafeExecutor<R> {
     Assert.notNull(innerPolicy, "innerPolicy");
     List<Policy<R>> composed = new ArrayList<>(policies);
     composed.add(innerPolicy);
-    return new FailsafeExecutor<>(composed);
+    FailsafeExecutor<R> result = new FailsafeExecutor<>(composed);
+    result.scheduler = scheduler;
+    result.executor = executor;
+    result.completeHandler = completeHandler;
+    result.failureHandler = failureHandler;
+    result.successHandler = successHandler;
+    return result;
   }
 
   /**
